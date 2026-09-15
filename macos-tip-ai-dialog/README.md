@@ -1,6 +1,6 @@
 # macOS Tip AI Dialog
 
-A concept script how Apple Intelligence can fit into mac admin workflows.  I uses the [Apple Foundation Models](https://developer.apple.com/documentation/foundationmodels) `fm` command-line tool or swift with Apple Intelligence framework and SwiftDialog to display random macOS tips to users.
+A concept script how Apple Intelligence can fit into mac admin workflows. It uses the [Apple Foundation Models](https://developer.apple.com/documentation/foundationmodels) `fm` command-line tool or swift with Apple Intelligence framework and SwiftDialog to display random macOS tips to users.
 
 ## Concept Overview
 
