@@ -1,0 +1,17 @@
+name: Build and test
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test and build app
+        run: bash ./scripts/build-app.sh
+      - name: Package app
+        run: ditto -c -k --sequesterRsrc --keepParent 'build/AI Control.app' build/AIControl-app.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AIControl-app
+          path: build/AIControl-app.zip

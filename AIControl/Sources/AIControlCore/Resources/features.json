@@ -1,0 +1,224 @@
+[
+  {
+    "id": "external-ai",
+    "title": "ChatGPT & external AI extensions",
+    "group": "Cloud",
+    "detail": "Restricts Apple\u2019s external AI integrations. Does not block provider websites, standalone apps, or Apple Private Cloud Compute.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.2",
+    "legacyKey": "allowExternalIntelligenceIntegrations",
+    "declarationType": "com.apple.configuration.external-intelligence.settings",
+    "declarationPath": [
+      "Enabled"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "external-signin",
+    "title": "External AI account sign-in",
+    "group": "Cloud",
+    "detail": "Restricts account sign-in only. Anonymous external AI requests may still work unless integrations are also restricted.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.2",
+    "legacyKey": "allowExternalIntelligenceIntegrationsSignIn",
+    "declarationType": "com.apple.configuration.external-intelligence.settings",
+    "declarationPath": [
+      "AllowSignIn"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "dictation-local",
+    "title": "Keep Dictation on device",
+    "group": "Cloud",
+    "detail": "Forces Dictation to avoid Siri servers. This is a Dictation-specific policy, not a switch for all Apple Intelligence.",
+    "actionLabel": "Require local",
+    "minimumOS": "14.0",
+    "legacyKey": "forceOnDeviceOnlyDictation",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "ForceOnDeviceOnlyDictation"
+    ],
+    "restrictionValue": true
+  },
+  {
+    "id": "pcc",
+    "title": "Private Cloud Compute",
+    "group": "Cloud",
+    "detail": "Apple decides when supported requests need server processing. No independent global PCC restriction was found in the reviewed Apple schemas. Turning off external AI does not turn off PCC.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.1"
+  },
+  {
+    "id": "inline-predictions",
+    "title": "Inline text predictions",
+    "group": "On-device",
+    "detail": "Local predictive typing preference. Can be changed directly for this user and restored. This is broader than Apple Intelligence.",
+    "actionLabel": "Restrict",
+    "minimumOS": "14.0",
+    "preferenceKey": "NSAutomaticInlinePredictionEnabled"
+  },
+  {
+    "id": "foundation-models",
+    "title": "Foundation Models apps",
+    "group": "On-device",
+    "detail": "The framework\u2019s system language model runs on device. Apps can separately use networking or their own AI providers. No documented standalone restriction for this framework was found.",
+    "actionLabel": "Restrict",
+    "minimumOS": "26.0"
+  },
+  {
+    "id": "xcode-completion",
+    "title": "Xcode predictive completion",
+    "group": "On-device",
+    "detail": "Local predictive code completion. Manage in Xcode Settings. No shared model deletion: deleting assets could affect other features.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.0"
+  },
+  {
+    "id": "siri-ai",
+    "title": "Siri AI features",
+    "group": "Mixed / Apple-managed",
+    "detail": "AI-specific Siri restriction, preserving basic Siri availability. Requires macOS 27 and MDM declaration deployment; cannot be manually installed as a legacy profile.",
+    "actionLabel": "Restrict",
+    "minimumOS": "27.0",
+    "declarationType": "com.apple.configuration.siri.settings",
+    "declarationPath": [
+      "AllowSiriAI"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "writing-tools",
+    "title": "Writing Tools",
+    "group": "Mixed / Apple-managed",
+    "detail": "Routing depends on the operation and OS. Restricts the feature as a whole; does not force its remaining requests to stay local.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.0",
+    "legacyKey": "allowWritingTools",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "AllowWritingTools"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "genmoji",
+    "title": "Genmoji",
+    "group": "Mixed / Apple-managed",
+    "detail": "Uses on-device models in supported configurations. Kept in this group because a feature-level restriction does not certify every current generation mode as local.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.0",
+    "legacyKey": "allowGenmoji",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "AllowGenmoji"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "image-playground",
+    "title": "Image Playground",
+    "group": "Mixed / Apple-managed",
+    "detail": "Processing varies by generation mode and OS, including external integrations. Restricts the entire feature.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.0",
+    "legacyKey": "allowImagePlayground",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "AllowImagePlayground"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "mail-summary",
+    "title": "Mail manual summaries",
+    "group": "Mixed / Apple-managed",
+    "detail": "Restricts manually generated Mail summaries. Apple\u2019s legacy restriction explicitly does not disable automatic summary generation.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.1",
+    "legacyKey": "allowMailSummary",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "Apps",
+      "Mail",
+      "AllowSummary"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "mail-replies",
+    "title": "Mail Smart Replies",
+    "group": "Mixed / Apple-managed",
+    "detail": "Restricts intelligent replies in Mail. No local-only routing guarantee is attached to this feature policy.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.4",
+    "legacyKey": "allowMailSmartReplies",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "Apps",
+      "Mail",
+      "AllowSmartReplies"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "safari-summary",
+    "title": "Safari summaries",
+    "group": "Mixed / Apple-managed",
+    "detail": "Restricts intelligent page summaries. No local-only routing guarantee is attached to this feature policy.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.4",
+    "legacyKey": "allowSafariSummary",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "Apps",
+      "Safari",
+      "AllowSummary"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "notes-summary",
+    "title": "Notes transcription summaries",
+    "group": "Mixed / Apple-managed",
+    "detail": "Restricts AI summaries of transcriptions. Leaves the transcription feature itself alone.",
+    "actionLabel": "Restrict",
+    "minimumOS": "15.3",
+    "legacyKey": "allowNotesTranscriptionSummary",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "Apps",
+      "Notes",
+      "AllowTranscriptionSummary"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "calendar-ai",
+    "title": "Calendar & Reminders natural language editing",
+    "group": "Mixed / Apple-managed",
+    "detail": "AI editing restriction for macOS 27. Requires MDM declaration deployment.",
+    "actionLabel": "Restrict",
+    "minimumOS": "27.0",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "Apps",
+      "Calendar",
+      "AllowNaturalLanguageEditing"
+    ],
+    "restrictionValue": false
+  },
+  {
+    "id": "visual-ai",
+    "title": "Visual Intelligence",
+    "group": "Mixed / Apple-managed",
+    "detail": "Feature restriction for macOS 27. Processing may involve cloud services; requires MDM declaration deployment.",
+    "actionLabel": "Restrict",
+    "minimumOS": "27.0",
+    "declarationType": "com.apple.configuration.intelligence.settings",
+    "declarationPath": [
+      "AllowVisualIntelligence"
+    ],
+    "restrictionValue": false
+  }
+]

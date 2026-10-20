@@ -1,0 +1,37 @@
+# SwiftPM and generated app output
+.build/
+.swiftpm/
+build/
+dist/
+DerivedData/
+
+# Xcode user-specific state
+xcuserdata/
+*.xcuserstate
+
+# macOS archive and Finder metadata
+.DS_Store
+._*
+__MACOSX/
+
+# Compiled apps, symbols, and distributable archives
+*.app/
+*.dSYM/
+*.zip
+*.dmg
+*.pkg
+*.ipa
+*.xcarchive/
+
+# Local credentials and signing material
+.env
+.env.*
+*.p12
+*.pfx
+*.p8
+*.pem
+*.key
+*.mobileprovision
+*.provisionprofile
+Secrets.xcconfig
+*.secret.xcconfig
