@@ -7,6 +7,7 @@ A macOS laboratory of macOS administrator concepts, experiments, and scripted wo
 
 | Script | Description |
 |--------|-------------|
+| [AI Control](./AIControl) | A macOS menu bar app for controlling macOS AI features.  |
 | [macOS Tip AI Dialog](./macos-tip-ai-dialog) | Script using Swift with Apple Intelligence (Foundation Models), and SwiftDialog to generate and display dynamic macOS tips |
 
 Each folder contains a `README.md` with setup and usage details.

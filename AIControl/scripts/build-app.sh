@@ -32,17 +32,20 @@ fi
 swift test
 
 # Builds the release version of AI Control and defines the paths used to create the app bundle
-swift build -c release
+swift build -c release -Xswiftc -debug-prefix-map -Xswiftc "$PWD=/AIControl"
 binary_dir="$(swift build -c release --show-bin-path)"
 app_dir="$PWD/build/AI Control.app"
 logo_source="$PWD/Sources/AIControl/Resources/AI Control logo.png"
 iconset_dir="$(mktemp -d)/AI Control logo.iconset"
+
 # Removes temporary icon files when the script exits
 trap 'rm -rf "$(dirname "$iconset_dir")"' EXIT
+
 # Creates the app bundle folders and copies the required files
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$binary_dir/AIControl" "$app_dir/Contents/MacOS/AIControl"
 cp Sources/AIControlCore/Resources/features.json "$app_dir/Contents/Resources/features.json"
+
 # Creates icons in the sizes required by macOS and converts the images into the app icon file
 mkdir -p "$iconset_dir"
 for size in 16 32 128 256 512; do
@@ -70,6 +73,9 @@ cat > "$app_dir/Contents/Info.plist" <<'PLIST'
 <key>NSHighResolutionCapable</key><true/>
 </dict></plist>
 PLIST
+
+# Remove debug symbols and local build paths.
+xcrun strip -S "$app_dir/Contents/MacOS/AIControl"
 
 # Signs the app bundle with the supplied identity or ad hoc signing
 codesign --force --deep --sign "${CODE_SIGN_IDENTITY:--}" "$app_dir"

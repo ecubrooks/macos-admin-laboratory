@@ -81,11 +81,11 @@ The app already exports MDM declarations, but it does not deploy them or obtain 
 
 ### Selected restrictions
 
-![AI Control restrictions](Screenshots/AIControl-Restrictions.png)
+![AI Control restrictions](images/AIControl-Restrictions.png)
 
 ### Readable active settings
 
-![AI Control active settings](Screenshots/AIControl-Active.png)
+![AI Control active settings](images/AIControl-Active.png)
 
 The Active view reports matching readable settings and can include restrictions applied by other profiles or management tools. It does not identify which profile has the setting. 
 
