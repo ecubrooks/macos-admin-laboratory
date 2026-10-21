@@ -2,7 +2,7 @@
 
 A native macOS menu bar app focused on controlling macOS AI features. The app seperates cloud integrations, on-device capabilities, and features with mixed or Apple-managed routing sections. The Active section shows matching readable effective settings.
 
-Why I created this app is I understand why people do not want AI to take over their computer without their consent. I also recognize that AI can be usedul in situations. This app is not about being anti-AI but about giving you choice and control rather than an all or nothing approach.
+Why I created this app is I understand why people do not want AI to take over their computer without their consent. I also recognize that AI can be useful in situations. This app is not about being anti-AI but about giving you choice and control rather than an all or nothing approach.
 
 AI Control was initially conceived as a Swift Dialog application utilizing checkboxes to generate a configuration profile. However, after working on it and realizing the need for additional features, such as activation section and reviewing another github project, this project pivoted towards development of a menu bar application that distinguishes between cloud-based and on-device AI functionalities.
 
@@ -10,7 +10,7 @@ AI Control was initially conceived as a Swift Dialog application utilizing check
 
 Prebuilt app ZIPs are distributed through this repository's **GitHub Releases** page. 
 
-1. Open **Releases** on the repository page and choose a release.
+1. Open **[Releases](https://github.com/ecubrooks/macos-admin-laboratory/releases/tag/ai-control-v1.0.0)** on the repository page and choose a release.
 2. Under **Assets**, download the attached app ZIP, such as `AIControl-app.zip`. GitHub's automatically generated **Source code** ZIP is the project source, not the compiled app.
 3. Check the release notes for the required macOS version and processor architecture. The current build script creates an app for the build machine's architecture, not a universal binary.
 4. Extract the ZIP and move **AI Control.app** to **Applications**.
