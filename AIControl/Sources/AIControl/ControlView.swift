@@ -4,6 +4,7 @@ import AIControlCore
 
 struct ControlView: View {
     @ObservedObject var model: ControlModel
+    @Environment(\.scenePhase) private var scenePhase
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
@@ -49,12 +50,25 @@ struct ControlView: View {
                     Button("Profiles / Undo policy…") { model.openSettings(profiles: true) }
                     Button("Clear draft") { model.clearDraft() }
                     Divider()
+                    Toggle("Launch at login", isOn: Binding(
+                        get: { model.launchAtLogin },
+                        set: { enabled in
+                            Task { await model.setLaunchAtLogin(enabled) }
+                        }))
+                        .disabled(model.changingLoginItem)
+                    if model.loginApprovalRequired {
+                        Button("Approve launch at login…") { model.openLoginSettings() }
+                    }
+                    Divider()
                     Button("Quit AI Control") { NSApplication.shared.terminate(nil) }
                 } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).frame(width: 25)
             }.font(.caption)
         }
         .padding(18).frame(width: 470)
-        .onAppear { model.refresh() }
+        .task { model.refresh() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { model.refreshLoginStatus() }
+        }
         .sheet(isPresented: $model.review) { ReviewView(model: model) }
         .alert(
             "AI Control",
@@ -152,14 +166,17 @@ private struct ReviewView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            Button("Save MDM declarations to Downloads") { model.export(ddm: true) }
-            Button("Save AI Control profile to Downloads") { model.export(ddm: false) }
+            Button("Save MDM declarations to Downloads") { Task { await model.export(ddm: true) } }
+                .disabled(model.exporting)
+            Button("Save AI Control profile to Downloads") { Task { await model.export(ddm: false) } }
+                .disabled(model.exporting)
             Button("Save and open AI Control profile…") {
-                model.export(ddm: false, install: true)
+                Task { await model.export(ddm: false, install: true) }
             }
+            .disabled(model.exporting)
             HStack {
                 Spacer()
-                Button("Back") { model.review = false }
+                Button("Back") { model.review = false }.disabled(model.exporting)
             }
         }
         .padding(20)

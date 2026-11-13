@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import ServiceManagement
 import AIControlCore
 
 enum ControlSection: String, CaseIterable, Identifiable {
@@ -33,6 +34,9 @@ final class ControlModel: ObservableObject {
     @Published var review = false
     @Published var error: String?
     @Published var offersDeviceManagement = false
+    @Published private(set) var loginStatus = SMAppService.mainApp.status
+    @Published private(set) var changingLoginItem = false
+    @Published private(set) var exporting = false
     private let defaults = UserDefaults.standard
     private let draftKey = "restrictionDraft"
     private let journalKey = "inlinePredictionOriginalValue"
@@ -88,6 +92,7 @@ final class ControlModel: ObservableObject {
     private func persist() { defaults.set(selected.sorted(), forKey: draftKey) }
 
     func refresh() {
+        refreshLoginStatus()
         CFPreferencesSynchronize(domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
         let forced = CFPreferencesAppValueIsForced(key as CFString, domain)
         let value = CFPreferencesCopyAppValue(key as CFString, domain) as? NSNumber
@@ -112,6 +117,42 @@ final class ControlModel: ObservableObject {
             return feature.id
         })
     }
+    var launchAtLogin: Bool {
+        loginStatus == .enabled || loginStatus == .requiresApproval
+    }
+
+    var loginApprovalRequired: Bool { loginStatus == .requiresApproval }
+
+    func refreshLoginStatus() {
+        loginStatus = SMAppService.mainApp.status
+    }
+
+    func setLaunchAtLogin(_ enabled: Bool) async {
+        guard !changingLoginItem else { return }
+        changingLoginItem = true
+        defer {
+            refreshLoginStatus()
+            changingLoginItem = false
+        }
+        do {
+            let service = SMAppService.mainApp
+            if enabled {
+                if service.status != .enabled && service.status != .requiresApproval {
+                    try service.register()
+                }
+            } else {
+                try await service.unregister()
+            }
+        } catch {
+            offersDeviceManagement = false
+            self.error = "Could not change launch at login: \(error.localizedDescription)"
+        }
+    }
+
+    func openLoginSettings() {
+        SMAppService.openSystemSettingsLoginItems()
+    }
+
     var hasLocalBackup: Bool { defaults.bool(forKey: journalPresentKey) }
     func disablePredictions() {
         guard !CFPreferencesAppValueIsForced(key as CFString, domain) else {
@@ -151,53 +192,41 @@ final class ControlModel: ObservableObject {
                               : "x-apple.systempreferences:com.apple.Siri-Settings.extension"
         if let url = URL(string: target) { NSWorkspace.shared.open(url) }
     }
-    func export(ddm: Bool, install: Bool = false) {
+    func export(ddm: Bool, install: Bool = false) async {
+        guard !exporting else { return }
+        exporting = true
+        defer { exporting = false }
+        var savedURL: URL?
         do {
             let data = try ddm ? Policy.declarations(ids: policyIDs, catalog: features)
                                : Policy.legacyProfile(ids: policyIDs, catalog: features)
             let filename = ddm ? "AIControl-declarations.json" : "AIControl.mobileconfig"
             let url = try availableDownloadsURL(filename: filename)
-
             try data.write(to: url, options: .atomic)
+            savedURL = url
+            review = false
+            message = "\(url.lastPathComponent) saved to Downloads."
 
             if install {
                 guard NSWorkspace.shared.open(url) else {
                     throw CocoaError(.fileReadUnknown)
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) { [weak self] in
-                    self?.openSettings(profiles: true)
-                }
+                try await Task.sleep(for: .milliseconds(750))
+                openSettings(profiles: true)
             } else {
                 NSWorkspace.shared.activateFileViewerSelecting([url])
             }
-
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                review = false
-                offersDeviceManagement = !ddm && !install
-                if install {
-                    message = "Profile saved to Downloads. Device Management is opening for installation."
-                    error = nil
-                } else {
-                    message = "\(url.lastPathComponent) saved to Downloads."
-                    error = ddm
-                        ? "\(url.lastPathComponent) was saved to Downloads."
-                        : "\(url.lastPathComponent) was saved to Downloads. You can now open Device Management to install it."
-                }
-            }
         } catch {
-            let message = "The file could not be saved: \(error.localizedDescription)"
+            let failure = savedURL.map {
+                "The profile was saved to \($0.path), but could not be opened: \(error.localizedDescription)"
+            } ?? "The file could not be saved to Downloads: \(error.localizedDescription)"
+            message = failure
+            review = false
             DispatchQueue.main.async { [weak self] in
                 self?.offersDeviceManagement = false
-                self?.error = message
+                self?.error = failure
             }
         }
-    }
-
-    func openDeviceManagement() {
-        offersDeviceManagement = false
-        error = nil
-        openSettings(profiles: true)
     }
 
     private func availableDownloadsURL(filename: String) throws -> URL {
@@ -207,23 +236,24 @@ final class ControlModel: ObservableObject {
         ).first else {
             throw CocoaError(.fileNoSuchFile)
         }
-
         let requestedURL = downloads.appendingPathComponent(filename)
-        guard FileManager.default.fileExists(atPath: requestedURL.path) else {
-            return requestedURL
-        }
-
-        let extensionName = requestedURL.pathExtension
-        let baseName = requestedURL.deletingPathExtension().lastPathComponent
+        var candidate = requestedURL
         var copyNumber = 2
-
-        while true {
-            let copyName = "\(baseName)-\(copyNumber).\(extensionName)"
-            let copyURL = downloads.appendingPathComponent(copyName)
-            if !FileManager.default.fileExists(atPath: copyURL.path) {
-                return copyURL
-            }
+        while FileManager.default.fileExists(atPath: candidate.path) {
+            let baseName = requestedURL.deletingPathExtension().lastPathComponent
+            candidate = downloads.appendingPathComponent(
+                "\(baseName)-\(copyNumber).\(requestedURL.pathExtension)"
+            )
             copyNumber += 1
         }
+        return candidate
     }
+
+    func openDeviceManagement() {
+        offersDeviceManagement = false
+        error = nil
+        openSettings(profiles: true)
+    }
+
+
 }

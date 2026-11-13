@@ -1,6 +1,6 @@
 # AI Control
 
-A native macOS menu bar app focused on controlling macOS AI features. The app seperates cloud integrations, on-device capabilities, and features with mixed or Apple-managed routing sections. The Active section shows matching readable effective settings.
+A native macOS menu bar app focused on controlling macOS AI features. The app separates cloud integrations, on-device capabilities, and features with mixed or Apple-managed routing sections. The Active section shows matching readable effective settings.
 
 Why I created this app is I understand why people do not want AI to take over their computer without their consent. I also recognize that AI can be useful in situations. This app is not about being anti-AI but about giving you choice and control rather than an all or nothing approach.
 
@@ -8,47 +8,26 @@ AI Control was initially conceived as a Swift Dialog application utilizing check
 
 ## Download the app
 
-Prebuilt app ZIPs are distributed through this repository's **GitHub Releases** page. 
+App downloads are available through **[GitHub Releases](https://github.com/ecubrooks/macos-admin-laboratory/releases)**.
 
-1. Open **[Releases](https://github.com/ecubrooks/macos-admin-laboratory/releases/tag/ai-control-v1.0.0)** on the repository page and choose a release.
-2. Under **Assets**, download the attached app ZIP, such as `AIControl-app.zip`. GitHub's automatically generated **Source code** ZIP is the project source, not the compiled app.
-3. Check the release notes for the required macOS version and processor architecture. The current build script creates an app for the build machine's architecture, not a universal binary.
-4. Extract the ZIP and move **AI Control.app** to **Applications**.
-5. Open the app and click its brain icon in the menu bar.
+1. Choose the AI Control release and check its notes for the required macOS version and processor architecture.
+2. Under **Assets**, download the app ZIP or installer package provided with that release. GitHub's automatically generated **Source code** archives contain the project source.
+3. For a ZIP, extract it and move **AI Control.app** to **Applications**. For a PKG, open it and follow the installer instructions.
+4. Open the app and click its brain icon in the menu bar.
 
-If a release does work or not yet updated in app ZIP, build from source using the instructions below.
-
-### Current signing status
-
-Builds created with the default script use **ad hoc signing** and are **not notarized**. macOS may block the first launch because it cannot verify the developer. After attempting to open the app, you may need to use **System Settings → Privacy & Security → Open Anyway** and confirm the prompt. Organization managed Macs may prohibit this.
+Release downloads are signed with a Developer ID certificate.
 
 Installing a configuration profile still requires separate approval in System Settings. DDM JSON exports require deployment through a supporting MDM; opening the app does not automatically install those declarations.
 
-## Build on your Mac
+## Requirements and compatibility
 
-Requires macOS 14+ and Xcode with Swift 5.10 or newer. Confirm that command-line builds use the full Xcode toolchain:
+The project targets macOS 14 or later. **The app has been tested on macOS 26 and macOS 27.** Earlier versions have not been confirmed by this testing.
 
-```bash
-xcode-select --print-path
-```
+Feature controls are gated by their minimum macOS version. Apple Intelligence requires eligible hardware, language, region, and account configuration; OS eligibility in the app does not certify feature availability.
 
-The expected output is:
+The app uses SwiftUI `MenuBarExtra`, stays out of the Dock, and has no main window. It has no third-party package dependencies.
 
-```text
-/Applications/Xcode.app/Contents/Developer
-```
-
-If a different path is selected, switch to Xcode with `sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer`. Feature controls are gated by their minimum macOS version. Apple Intelligence requires eligible hardware, language, region, and account configuration; OS eligibility in the app does not certify feature availability.
-
-```bash
-cd AIControl
-./scripts/build-app.sh
-open "build/AI Control.app"
-```
-
-The app uses SwiftUI `MenuBarExtra`, stays out of the Dock, and has no main window. No third-party dependencies. The build script runs the Swift unit tests before packaging an app, then applies an ad hoc signature by default.
-
-The app is written to `build/AI Control.app`. The app was developed within XCode with Codex (the irony of using AI in Xcode to build a tool that blocks AI isn’t lost on me).
+The app was developed in Xcode with Codex (the irony of using AI in Xcode to build a tool that blocks AI isn’t lost on me).
 
 ## Controls
 
@@ -67,7 +46,7 @@ The cloud preset selects supported external AI restrictions and requires local D
 Policy checkboxes represent a **draft**. Review the selected restrictions before generating an output. Unchecked features are omitted rather than explicitly enabled. The Active section separately shows restrictions whose effective values the app can verify.
 
 - **Configuration profiles:** Use Apple's legacy `com.apple.applicationaccess` keys, "deprecated" in macOS 26.4. They can be exported or opened for manual approval in System Settings. Validate behavior on the target macOS. Remove the `AI Control` profile in System Settings to release its restrictions. Organizational policies can still prohibit a feature.
-- **MDM declarations:** Preferred management format for macOS 26.4+. The exported JSON contains configurations and an activation. It is not an installable profile without a suppporting MDM. Publish the individual declarations through a supporting MDM. Siri AI, Visual Intelligence, and Calendar/Reminders editing require macOS 27+. Removing or replacing their declarations through MDM releases these restrictions.
+- **MDM declarations:** Preferred management format for macOS 26.4+. The exported JSON contains configurations and an activation. It is not an installable profile without a supporting MDM. Publish the individual declarations through a supporting MDM. Siri AI, Visual Intelligence, and Calendar/Reminders editing require macOS 27+. Removing or replacing their declarations through MDM releases these restrictions.
 
 The app does not automatically install profiles, deploy MDM declarations, override organization settings, or claim applied status from a generated file. Active status requires a matching readable effective value: forced legacy restrictions in `com.apple.applicationaccess`, or the disabled inline-prediction preference. A disabled preference appears as Active, the app does not test behavior inside every app. Restart affected apps if needed.  DDM-only restrictions remain unverifiable without an MDM status source. It intentionally leaves Apple Intelligence Reports available. Manual Mail summaries and automatic previews are different: the legacy manual-summary restriction does not disable automatic summaries.
 
@@ -75,7 +54,7 @@ The app does not automatically install profiles, deploy MDM declarations, overri
 
 The current compatibility-profile approach is retained for this version. Many of its Apple Intelligence restriction keys are deprecated starting in macOS 26.4. Deprecation in itself does not establish a removal or guarantee continued behavior: verify each restriction on the macOS versions you deploy, including after updates. Installing a profile successfully does not by itself prove every setting is enforced.
 
-The app already exports MDM declarations, but it does not deploy them or obtain MDM status and currently not on a future update as part of this app.
+The app exports MDM declarations, but it does not deploy them or obtain MDM status. These capabilities are not currently planned.
 
 ## Screenshots
 
@@ -88,12 +67,6 @@ The app already exports MDM declarations, but it does not deploy them or obtain 
 ![AI Control active settings](images/AIControl-Active.png)
 
 The Active view reports matching readable settings and can include restrictions applied by other profiles or management tools. It does not identify which profile has the setting. 
-
-## Testing and release status
-
-Run `swift test` on macOS; the build script runs these tests before packaging the app. Test each feature's behavior, or prove the absence of DDM restrictions when the list is empty.
- 
-Before a compiled release, test on a personal Mac and an MDM-managed Mac.
 
 ## Sources
 

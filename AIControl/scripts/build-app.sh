@@ -28,6 +28,12 @@ if [[ "$(uname -s)" != Darwin ]]; then
     exit 1
 fi
 
+# Version metadata; increment BUILD_NUMBER for each distributed build.
+app_version="${APP_VERSION:-1.1}"
+build_number="${BUILD_NUMBER:-2}"
+[[ "$app_version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || { echo "Invalid APP_VERSION" >&2; exit 1; }
+[[ "$build_number" =~ ^[1-9][0-9]*$ ]] || { echo "Invalid BUILD_NUMBER" >&2; exit 1; }
+
 # Runs Swift tests before building the app
 swift test
 
@@ -42,6 +48,7 @@ iconset_dir="$(mktemp -d)/AI Control logo.iconset"
 trap 'rm -rf "$(dirname "$iconset_dir")"' EXIT
 
 # Creates the app bundle folders and copies the required files
+rm -rf "$app_dir"
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$binary_dir/AIControl" "$app_dir/Contents/MacOS/AIControl"
 cp Sources/AIControlCore/Resources/features.json "$app_dir/Contents/Resources/features.json"
@@ -56,7 +63,7 @@ done
 iconutil -c icns "$iconset_dir" -o "$app_dir/Contents/Resources/AI Control logo.icns"
 
 # Creates the app information and configures it as a menu bar app
-cat > "$app_dir/Contents/Info.plist" <<'PLIST'
+cat > "$app_dir/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
@@ -66,8 +73,8 @@ cat > "$app_dir/Contents/Info.plist" <<'PLIST'
 <key>CFBundleExecutable</key><string>AIControl</string>
 <key>CFBundleIconFile</key><string>AI Control logo</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.0</string>
-<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleShortVersionString</key><string>$app_version</string>
+<key>CFBundleVersion</key><string>$build_number</string>
 <key>LSMinimumSystemVersion</key><string>14.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
@@ -78,7 +85,13 @@ PLIST
 xcrun strip -S "$app_dir/Contents/MacOS/AIControl"
 
 # Signs the app bundle with the supplied identity or ad hoc signing
-codesign --force --deep --sign "${CODE_SIGN_IDENTITY:--}" "$app_dir"
+plutil -lint "$app_dir/Contents/Info.plist"
+if [[ "${CODE_SIGN_IDENTITY:--}" == "-" ]]; then
+    codesign --force --sign - "$app_dir"
+else
+    codesign --force --options runtime --timestamp --sign "$CODE_SIGN_IDENTITY" "$app_dir"
+fi
+codesign --verify --deep --strict --verbose=2 "$app_dir"
 
 # Displays the completed app bundle location
 echo "Built: $app_dir"
